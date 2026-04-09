@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: sxmnova-member-gallery
+    runtime: node
+    buildCommand: npm install --production=false && npm rebuild sharp
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
+      - key: ADMIN_PASSWORD
+        sync: false  # set manually in Render dashboard
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: WHATSAPP_MIDDLEMAN_NUMBER
+        value: "15265574"

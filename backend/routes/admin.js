@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const sharp = require('sharp');
+const Jimp = require('jimp');
 const { db } = require('../config/database');
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '123';
@@ -50,11 +50,20 @@ router.post('/members', requireAuth, upload.single('image'), async (req, res) =>
   let finalImagePath = null;
 
   if (req.file) {
-    const ext = path.extname(req.file.originalname);
-    const filename = `${Date.now()}${ext}`;
-    const outputPath = `public/uploads/members/${filename}`;
-    await sharp(req.file.path).resize(400, 400).toFile(outputPath);
-    finalImagePath = `/uploads/members/${filename}`;
+    try {
+      const ext = path.extname(req.file.originalname);
+      const filename = `${Date.now()}${ext}`;
+      const outputPath = `public/uploads/members/${filename}`;
+      
+      // Resize with Jimp (400x400)
+      const image = await Jimp.read(req.file.path);
+      await image.resize(400, 400).writeAsync(outputPath);
+      
+      finalImagePath = `/uploads/members/${filename}`;
+    } catch (err) {
+      console.error('Image processing error:', err);
+      return res.status(500).send('Failed to process image');
+    }
   }
 
   db.run('INSERT INTO members (name, bio, image) VALUES (?, ?, ?)',
@@ -68,17 +77,25 @@ router.post('/members', requireAuth, upload.single('image'), async (req, res) =>
 
 // Edit member
 router.post('/members/:id', requireAuth, upload.single('image'), async (req, res) => {
-  const { name, bio } = req.body;
+  const { name, bio } = req.params;
   const id = req.params.id;
 
   if (req.file) {
-    const ext = path.extname(req.file.originalname);
-    const filename = `${Date.now()}${ext}`;
-    const outputPath = `public/uploads/members/${filename}`;
-    await sharp(req.file.path).resize(400, 400).toFile(outputPath);
-    const image = `/uploads/members/${filename}`;
-    db.run('UPDATE members SET name = ?, bio = ?, image = ? WHERE id = ?',
-      [name, bio, image, id]);
+    try {
+      const ext = path.extname(req.file.originalname);
+      const filename = `${Date.now()}${ext}`;
+      const outputPath = `public/uploads/members/${filename}`;
+      
+      const image = await Jimp.read(req.file.path);
+      await image.resize(400, 400).writeAsync(outputPath);
+      
+      const imagePath = `/uploads/members/${filename}`;
+      db.run('UPDATE members SET name = ?, bio = ?, image = ? WHERE id = ?',
+        [name, bio, imagePath, id]);
+    } catch (err) {
+      console.error('Image processing error:', err);
+      return res.status(500).send('Failed to process image');
+    }
   } else {
     db.run('UPDATE members SET name = ?, bio = ? WHERE id = ?',
       [name, bio, id]);
