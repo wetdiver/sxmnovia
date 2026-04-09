@@ -1,0 +1,13 @@
+.card-img-top {
+    height: 250px;
+    object-fit: cover;
+}
+.bot-message {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+#chatbotMessages {
+    height: 300px;
+    overflow-y: auto;
+}

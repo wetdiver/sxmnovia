@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Database
+database.sqlite
+database.sqlite-journal
+
+# Uploaded images & temp files
+public/uploads/temp/
+public/uploads/members/
+!public/uploads/members/.gitkeep
+
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# IDE / editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build / runtime
+dist/
+build/
