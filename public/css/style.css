@@ -1,13 +1,383 @@
-.card-img-top {
-    height: 250px;
-    object-fit: cover;
+/* ========== GLOBAL DARK THEME ========== */
+:root {
+    --black: #0a0a0a;
+    --dark-grey: #1a1a1a;
+    --faded-grey: #2a2a2a;
+    --medium-grey: #3a3a3a;
+    --light-grey: #aaaaaa;
+    --red: #c0392b;
+    --red-hover: #e74c3c;
+    --red-glow: rgba(192, 57, 43, 0.3);
 }
+
+body {
+    background: var(--black);
+    color: #e0e0e0;
+    font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* ========== TYPOGRAPHY ========== */
+h1, h2, h3, h4, h5 {
+    color: #ffffff;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    border-left: 4px solid var(--red);
+    padding-left: 20px;
+    margin-bottom: 2rem;
+}
+
+/* ========== CARDS (Member Gallery) ========== */
+.card {
+    background: var(--dark-grey);
+    border: 1px solid var(--faded-grey);
+    border-radius: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    backdrop-filter: blur(2px);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.5), 0 0 0 1px var(--red-glow);
+    border-color: var(--red);
+}
+
+.card-img-top {
+    height: 280px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--faded-grey);
+}
+
+.card-title {
+    color: #fff;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-body {
+    background: var(--dark-grey);
+    padding: 1.25rem;
+}
+
+/* ========== BUTTONS ========== */
+.btn-primary {
+    background: linear-gradient(135deg, var(--red) 0%, #a93226 100%);
+    border: none;
+    border-radius: 40px;
+    padding: 8px 24px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #e74c3c 0%, var(--red) 100%);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px var(--red-glow);
+}
+
+.btn-secondary {
+    background: var(--faded-grey);
+    border: 1px solid var(--medium-grey);
+    color: #ddd;
+    border-radius: 40px;
+}
+
+.btn-secondary:hover {
+    background: var(--medium-grey);
+    color: white;
+    border-color: var(--red);
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+    border-radius: 40px;
+}
+
+.btn-danger:hover {
+    background: var(--red);
+    color: white;
+}
+
+/* ========== MODALS (Profile & Chatbot) ========== */
+.modal-content {
+    background: var(--dark-grey);
+    border: 1px solid var(--faded-grey);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--faded-grey);
+    background: var(--black);
+    border-radius: 24px 24px 0 0;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--faded-grey);
+    background: var(--black);
+    border-radius: 0 0 24px 24px;
+}
+
+.modal-title {
+    color: #fff;
+    font-weight: 600;
+}
+
+.btn-close {
+    filter: invert(1) brightness(2);
+}
+
+/* Chatbot specific */
 .bot-message {
-    margin-bottom: 10px;
-    padding: 10px;
+    background: var(--faded-grey);
+    color: #f0f0f0;
+    border-radius: 18px;
+    padding: 12px 18px;
+    margin: 8px 0;
+    border-left: 3px solid var(--red);
+}
+
+#chatbotMessages {
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+/* Date picker and controls */
+#datePicker {
+    background: var(--faded-grey);
+    border: 1px solid var(--medium-grey);
+    color: white;
+    border-radius: 40px;
+    padding: 6px 12px;
+}
+
+#datePicker::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+/* Alternative member thumbnails */
+.text-center[style*="cursor:pointer"]:hover {
+    transform: scale(1.05);
+    transition: 0.1s;
+    filter: drop-shadow(0 0 6px var(--red-glow));
+}
+
+/* ========== ADMIN PANEL OVERRIDES ========== */
+.admin-container {
+    background: var(--black);
+    color: #ddd;
+}
+
+.admin-container .table {
+    background: var(--dark-grey);
+    color: #eee;
+    border-color: var(--faded-grey);
+}
+
+.admin-container .table td, 
+.admin-container .table th {
+    border-color: var(--faded-grey);
+}
+
+.admin-container input, 
+.admin-container textarea, 
+.admin-container select {
+    background: var(--faded-grey);
+    border: 1px solid var(--medium-grey);
+    color: white;
+    border-radius: 8px;
+    padding: 6px 12px;
+}
+
+.admin-container input:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px var(--red-glow);
+}
+
+.nav-tabs .nav-link {
+    color: #ccc;
+    background: var(--dark-grey);
+    border-color: var(--faded-grey);
+}
+
+.nav-tabs .nav-link.active {
+    background: var(--red);
+    color: white;
+    border-color: var(--red);
+}
+
+/* ========== UTILITIES ========== */
+a {
+    color: var(--red);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--red-hover);
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 1280px;
+}
+
+/* Scrollbar (Webkit) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--dark-grey);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--medium-grey);
     border-radius: 10px;
 }
-#chatbotMessages {
-    height: 300px;
-    overflow-y: auto;
+::-webkit-scrollbar-thumb:hover {
+    background: var(--red);
+}
+
+/* ========== ADMIN PANEL RESPONSIVE ========== */
+.admin-container {
+    padding: 1rem;
+}
+
+/* Member cards (replace table on mobile) */
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.member-card {
+    background: var(--dark-grey);
+    border: 1px solid var(--faded-grey);
+    border-radius: 20px;
+    padding: 1rem;
+    transition: all 0.2s;
+}
+
+.member-card:hover {
+    border-color: var(--red);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.member-card img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--red);
+    margin-bottom: 0.5rem;
+}
+
+.member-card h4 {
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+}
+
+.member-card p {
+    color: var(--light-grey);
+    font-size: 0.85rem;
+}
+
+.admin-form {
+    background: var(--dark-grey);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--faded-grey);
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    margin-bottom: 1rem;
+    background: var(--faded-grey);
+    border: 1px solid var(--medium-grey);
+    color: white;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px var(--red-glow);
+}
+
+.admin-form button {
+    width: 100%;
+    padding: 10px;
+    font-weight: bold;
+}
+
+/* Table fallback for desktop but scrollable on mobile */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    min-width: 600px;
+    background: var(--dark-grey);
+    color: #eee;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.table th {
+    background: var(--black);
+    color: var(--red);
+    font-weight: 600;
+    border-bottom: 2px solid var(--red);
+}
+
+.table td {
+    vertical-align: middle;
+    border-color: var(--faded-grey);
+}
+
+/* Mobile: switch to card layout for members list */
+@media (max-width: 768px) {
+    .table-responsive-wrapper .table {
+        display: none;
+    }
+    
+    .mobile-members-list {
+        display: block;
+    }
+    
+    .member-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .member-actions form,
+    .member-actions a {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-members-list {
+        display: none;
+    }
 }
