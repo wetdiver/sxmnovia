@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const Jimp = require('jimp');
 const { db } = require('../config/database');
 
@@ -41,10 +42,20 @@ router.get('/', requireAuth, (req, res) => {
   });
 });
 
-// Image upload config
-const upload = multer({ dest: 'public/uploads/temp/' });
+// ========== IMAGE UPLOAD CONFIG ==========
+// Use absolute path for temp uploads (Render /tmp is writable, but local works too)
+const tempUploadDir = process.env.NODE_ENV === 'production' 
+  ? '/tmp/' 
+  : path.join(__dirname, '../../public/uploads/temp/');
 
-// Add member
+// Ensure temp directory exists
+if (!fs.existsSync(tempUploadDir)) {
+  fs.mkdirSync(tempUploadDir, { recursive: true });
+}
+
+const upload = multer({ dest: tempUploadDir });
+
+// ========== ADD MEMBER ==========
 router.post('/members', requireAuth, upload.single('image'), async (req, res) => {
   const { name, bio } = req.body;
   let finalImagePath = null;
@@ -53,73 +64,108 @@ router.post('/members', requireAuth, upload.single('image'), async (req, res) =>
     try {
       const ext = path.extname(req.file.originalname);
       const filename = `${Date.now()}${ext}`;
-      const outputPath = `public/uploads/members/${filename}`;
+      const outputDir = path.join(__dirname, '../../public/uploads/members/');
       
-      // Resize with Jimp (400x400)
+      // Ensure members directory exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      
+      const outputPath = path.join(outputDir, filename);
+      
+      // Process with Jimp
       const image = await Jimp.read(req.file.path);
       await image.resize(400, 400).writeAsync(outputPath);
+      
+      // Delete temp file
+      fs.unlinkSync(req.file.path);
       
       finalImagePath = `/uploads/members/${filename}`;
     } catch (err) {
       console.error('Image processing error:', err);
-      return res.status(500).send('Failed to process image');
+      return res.status(500).send(`Failed to process image: ${err.message}`);
     }
   }
 
   db.run('INSERT INTO members (name, bio, image) VALUES (?, ?, ?)',
     [name, bio, finalImagePath],
     (err) => {
-      if (err) console.error(err);
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).send('Database error');
+      }
       res.redirect('/admin');
     }
   );
 });
 
-// Edit member
+// ========== EDIT MEMBER ==========
 router.post('/members/:id', requireAuth, upload.single('image'), async (req, res) => {
-  const { name, bio } = req.params;
+  const { name, bio } = req.body;
   const id = req.params.id;
 
   if (req.file) {
     try {
       const ext = path.extname(req.file.originalname);
       const filename = `${Date.now()}${ext}`;
-      const outputPath = `public/uploads/members/${filename}`;
+      const outputDir = path.join(__dirname, '../../public/uploads/members/');
+      
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      
+      const outputPath = path.join(outputDir, filename);
       
       const image = await Jimp.read(req.file.path);
       await image.resize(400, 400).writeAsync(outputPath);
       
+      fs.unlinkSync(req.file.path);
+      
       const imagePath = `/uploads/members/${filename}`;
       db.run('UPDATE members SET name = ?, bio = ?, image = ? WHERE id = ?',
-        [name, bio, imagePath, id]);
+        [name, bio, imagePath, id], (err) => {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).send('Database error');
+          }
+          res.redirect('/admin');
+        });
     } catch (err) {
       console.error('Image processing error:', err);
-      return res.status(500).send('Failed to process image');
+      return res.status(500).send(`Failed to process image: ${err.message}`);
     }
   } else {
     db.run('UPDATE members SET name = ?, bio = ? WHERE id = ?',
-      [name, bio, id]);
+      [name, bio, id], (err) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).send('Database error');
+        }
+        res.redirect('/admin');
+      });
   }
-  res.redirect('/admin');
 });
 
-// Delete member
+// ========== DELETE MEMBER ==========
 router.get('/members/:id/delete', requireAuth, (req, res) => {
-  db.run('DELETE FROM members WHERE id = ?', req.params.id, () => {
+  db.run('DELETE FROM members WHERE id = ?', req.params.id, (err) => {
+    if (err) console.error(err);
     res.redirect('/admin');
   });
 });
 
-// Properties CRUD (simple stub)
+// ========== PROPERTIES CRUD ==========
 router.post('/properties', requireAuth, (req, res) => {
   const { title, video } = req.body;
-  db.run('INSERT INTO properties (title, video) VALUES (?, ?)', [title, video], () => {
+  db.run('INSERT INTO properties (title, video) VALUES (?, ?)', [title, video], (err) => {
+    if (err) console.error(err);
     res.redirect('/admin');
   });
 });
 
 router.get('/properties/:id/delete', requireAuth, (req, res) => {
-  db.run('DELETE FROM properties WHERE id = ?', req.params.id, () => {
+  db.run('DELETE FROM properties WHERE id = ?', req.params.id, (err) => {
+    if (err) console.error(err);
     res.redirect('/admin');
   });
 });
